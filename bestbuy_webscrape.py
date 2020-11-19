@@ -9,39 +9,42 @@ from bs4 import BeautifulSoup
 
 # Function to click the button on the page and wait a few seconds
 def click_button():
-	button = driver.find_element_by_class_name("content_3dXxd") # Must redefine button to avoid stale error
+	# Must redefine button to avoid stale error:
+	button = driver.find_element_by_xpath("//*[@id=\"root\"]/div/div/div[3]/div[1]/div/main/div[2]/button/span")
+	#button = driver.find_elements_by_class_name("content_3dXxd") # This line previously worked, but after an error I switched to Xpath
 	button.click()
 	time.sleep(5) # Time allows the page to load (may depend on internet speeds)
 
 # Function to write csv files with a pandas dataframe
 def write_csv(dataframe, file_name):
-	#dataframe.index += 1 	## With this line the first laptop will have an index of 1 beside it (optional)
+	#dataframe.index += 1 	# With this line the first laptop will have an index of 1 beside it (optional)
 	dataframe.to_csv(f"{file_name}.csv")
 
 url = "https://www.bestbuy.ca/en-ca/collection/laptops-on-sale/46082?path=category%253aComputers%2B%2526%2BTablets%253bcategory%253aLaptops%2B%2526%2BMacBooks%253bsoldandshippedby0enrchstring%253aBest%2BBuy"
 
 options = webdriver.ChromeOptions()
 options.add_argument("--incognito") # Fresh start every time so no interference
-options.add_argument("--headless") # The chrome window won't pop up on screen and show animations
-chrome_options=options
+#options.add_argument("--headless") # The chrome window won't pop up on screen and show animations
 
 driver = webdriver.Chrome(options=options) # Initialize driver with chrome options defined above
 driver.get(url) # Bring the browser to the url specified above
-driver.set_window_size(1600, 900) # Set window resolution so that all elements can still load on page
+driver.set_window_size(1200, 900) # Set window resolution so that all elements can still load on page
 
 assert "Laptops on Sale" in driver.title # Make sure we are on the right page before proceeding
-time.sleep(5) # Give time to load full page
+time.sleep(10) # Give time to load full page
 
 button = driver.find_element_by_class_name("content_3dXxd") # Finding the "Show More" button at the bottom of the page
 
 while True: # If the button exists, click it
 	try:
 		click_button()
+		print("\"Show more\" buttton has been clicked")
 	except:
 		break
 
 html = driver.page_source # Once the full page with products is loaded, get the html data
 driver.quit() # Close our automated browser
+print("Driver has been quit")
 
 html_soup = BeautifulSoup(html, "html.parser") # Parse the html data for analysis and sorting
 laptop_containers = html_soup.find_all("div", class_ ="col-xs-8_1VO-Q col-sm-12_1kbJA productItemTextContainer_HocvR") # Find the containers that contains a products info
@@ -88,4 +91,3 @@ laptop_dataframe = pandas.DataFrame(laptop_dict)
 # Finally write file to csv for external use and print end statement
 write_csv(laptop_dataframe, "laptops_csv")
 print("Web Scraping and CSV file writing complete!")
-
