@@ -1,4 +1,5 @@
-# BestBuy-Webscraper
+# BestBuy-Webscraper (First Personal Project to learn Python)
+
 A quick script to learn web scraping by taking the list of laptops on sale on BestBuy.ca as a personal project.
 
 Libraries needed:
